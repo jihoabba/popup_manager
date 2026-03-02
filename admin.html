@@ -15,11 +15,9 @@
         body { font-family: "Pretendard Variable", Pretendard, sans-serif; background: #f3f4f6; height: 100vh; overflow: hidden; }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-
         .inp { width:100%; border:1px solid #d1d5db; border-radius:8px; padding:7px 11px; font-size:13px; outline:none; transition:border-color 0.15s; background:#fff; font-family:inherit; }
         .inp:focus { border-color:#111827; box-shadow:0 0 0 3px rgba(17,24,39,0.1); }
         .lbl { font-size:10px; font-weight:700; color:#9ca3af; text-transform:uppercase; letter-spacing:0.06em; margin-bottom:3px; display:block; }
-
         .btn { display:inline-flex; align-items:center; justify-content:center; gap:5px; font-weight:700; border-radius:8px; transition:all 0.15s; cursor:pointer; border:none; font-family:inherit; font-size:13px; }
         .btn:active { transform:scale(0.97); }
         .btn-dark { background:#111827; color:#fff; }
@@ -29,44 +27,36 @@
         .btn-gray:hover { background:#e5e7eb; }
         .btn-red  { background:#fff1f2; color:#dc2626; border:1px solid #fecaca; }
         .btn-red:hover { background:#ffe4e6; }
-
-        .tab-pill { padding:5px 14px; border-radius:20px; font-size:12px; font-weight:700; cursor:pointer; transition:all 0.15s; color:#9ca3af; border:none; background:transparent; font-family:inherit; }
-        .tab-pill.on { background:#374151; color:#fff; }
-
+        .branch-tab { padding:6px 18px; border-radius:20px; font-size:13px; font-weight:700; cursor:pointer; transition:all 0.15s; border:none; font-family:inherit; }
+        .branch-tab.on { background:#fff; color:#111827; box-shadow:0 1px 4px rgba(0,0,0,0.12); }
+        .branch-tab.off { background:transparent; color:#9ca3af; }
+        .sub-tab { padding:5px 14px; border-radius:20px; font-size:12px; font-weight:700; cursor:pointer; transition:all 0.15s; color:#9ca3af; border:none; background:transparent; font-family:inherit; }
+        .sub-tab.on { background:#374151; color:#fff; }
         .p-row { display:flex; align-items:center; gap:10px; padding:10px 12px; background:#fff; border:1px solid #e5e7eb; border-radius:10px; transition:border-color 0.15s; }
         .p-row:hover { border-color:#9ca3af; }
         .p-row.drag-over { border-color:#111827; background:#f9fafb; }
-
         .chip { display:inline-flex; align-items:center; gap:4px; background:#f3f4f6; border:1px solid #e5e7eb; border-radius:20px; padding:3px 9px; font-size:11px; font-weight:600; }
         .chip-x { color:#9ca3af; cursor:pointer; font-size:13px; line-height:1; }
         .chip-x:hover { color:#ef4444; }
-
         .overlay { position:fixed; inset:0; background:rgba(0,0,0,0.45); backdrop-filter:blur(4px); z-index:50; display:flex; align-items:center; justify-content:center; padding:24px; }
-        .modal  { background:#fff; border-radius:14px; width:100%; max-width:500px; max-height:88vh; overflow-y:auto; box-shadow:0 24px 80px rgba(0,0,0,0.22); }
-
+        .modal { background:#fff; border-radius:14px; width:100%; max-width:500px; max-height:88vh; overflow-y:auto; box-shadow:0 24px 80px rgba(0,0,0,0.22); }
         .spin { border:2px solid rgba(255,255,255,0.3); border-top-color:#fff; border-radius:50%; width:14px; height:14px; animation:rot 0.8s linear infinite; display:inline-block; }
         @keyframes rot { to{transform:rotate(360deg);} }
-
         .login-wrap { height:100vh; display:flex; align-items:center; justify-content:center; }
         .login-card { background:#fff; border-radius:16px; padding:44px 36px; width:100%; max-width:380px; box-shadow:0 4px 24px rgba(0,0,0,0.09); border:1px solid #e5e7eb; }
-
         .toast-el { position:fixed; bottom:28px; left:50%; transform:translateX(-50%); background:#111827; color:#fff; padding:11px 18px; border-radius:100px; font-size:13px; font-weight:600; display:flex; align-items:center; gap:8px; box-shadow:0 8px 32px rgba(0,0,0,0.18); z-index:200; white-space:nowrap; }
-
-        /* 미리보기 */
         .pv-card { background:#fff; border:2px solid rgba(0,0,0,0.06); border-radius:12px; padding:10px; margin-bottom:10px; position:relative; overflow:hidden; }
-        .pv-card.all-out { border-color:#e5e7eb; }
         .pv-soldout { position:absolute; inset:0; background:rgba(255,255,255,0.6); backdrop-filter:blur(2px); display:flex; align-items:center; justify-content:center; z-index:5; border-radius:10px; }
-        .pv-opt { font-size:10px; padding:3px 7px; border-radius:5px; font-weight:700; border:1px solid transparent; display:flex; align-items:baseline; gap:3px; }
+        .pv-opt { font-size:10px; padding:3px 7px; border-radius:5px; font-weight:700; border:1px solid transparent; }
         .pv-in  { background:#DCFCE7; color:#166534; border-color:#86EFAC; }
         .pv-out { background:#FEE2E2; color:#991B1B; border-color:#FECACA; text-decoration:line-through; }
-
         .animate-marquee { display:inline-block; padding-left:100%; animation:mq 18s linear infinite; }
         @keyframes mq { 0%{transform:translate(0,0);} 100%{transform:translate(-100%,0);} }
     </style>
 </head>
 <body>
 
-<!-- ════════ LOGIN ════════ -->
+<!-- ════ LOGIN ════ -->
 <div id="login-screen" class="login-wrap">
     <div class="login-card">
         <div class="text-center mb-7">
@@ -74,7 +64,7 @@
                 <i data-lucide="shield" class="w-5 h-5 text-white"></i>
             </div>
             <h1 class="text-xl font-bold">Popup Admin</h1>
-            <p class="text-xs text-gray-400 mt-1">상품 구성 및 설정 관리</p>
+            <p class="text-xs text-gray-400 mt-1">홍대 · 부산 통합 관리</p>
         </div>
         <label class="lbl">관리자 비밀번호</label>
         <input type="password" id="admin-pw" class="inp mb-3" placeholder="비밀번호 입력">
@@ -86,19 +76,23 @@
     </div>
 </div>
 
-<!-- ════════ MAIN ════════ -->
+<!-- ════ MAIN ════ -->
 <div id="main-screen" class="hidden h-screen flex flex-col">
 
     <!-- 헤더 -->
     <header class="bg-gray-900 text-white px-6 py-3 flex items-center justify-between shrink-0">
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-3">
             <span class="font-bold text-sm">POPUP ADMIN</span>
-            <span id="hdr-location" class="text-xs text-gray-400"></span>
+            <!-- 지점 탭 -->
+            <div class="flex gap-1 bg-gray-700/60 rounded-2xl p-1">
+                <button class="branch-tab on" id="branch-hongdae">홍대</button>
+                <button class="branch-tab off" id="branch-busan">부산</button>
+            </div>
         </div>
         <div class="flex items-center gap-3">
             <div class="flex gap-1 bg-gray-800 rounded-xl p-1">
-                <button class="tab-pill on" id="tab-btn-products">상품 관리</button>
-                <button class="tab-pill"    id="tab-btn-settings">설정</button>
+                <button class="sub-tab on" id="tab-btn-products">상품 관리</button>
+                <button class="sub-tab" id="tab-btn-settings">설정</button>
             </div>
             <button id="logout-btn" class="btn btn-gray py-1.5 px-3 text-xs">
                 <i data-lucide="log-out" class="w-3.5 h-3.5"></i> 로그아웃
@@ -111,6 +105,12 @@
 
         <!-- 좌측 편집 -->
         <div class="flex-1 overflow-y-auto scrollbar-hide px-6 py-5">
+
+            <!-- 현재 지점 표시 -->
+            <div id="branch-badge" class="inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold mb-4 bg-blue-50 text-blue-700 border border-blue-200">
+                <span class="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
+                <span id="branch-badge-text">홍대점 편집 중</span>
+            </div>
 
             <!-- 상품 관리 -->
             <div id="tab-products">
@@ -125,7 +125,7 @@
                 </div>
                 <div class="bg-amber-50 border border-amber-200 rounded-xl px-4 py-2.5 mb-4 flex items-center gap-2">
                     <i data-lucide="info" class="w-3.5 h-3.5 text-amber-600 shrink-0"></i>
-                    <p class="text-xs text-amber-800 font-medium">저장하면 우측 미리보기 및 고객 화면이 즉시 업데이트되고 재고는 전체 초기화됩니다.</p>
+                    <p class="text-xs text-amber-800 font-medium">저장하면 해당 지점 고객 화면이 즉시 업데이트되고 재고는 전체 초기화됩니다.</p>
                 </div>
                 <div id="product-list" class="space-y-2 mb-5"></div>
                 <button id="save-products-btn" class="btn btn-dark w-full py-3">
@@ -140,7 +140,7 @@
                 <div class="bg-white border border-gray-200 rounded-xl p-5 space-y-4 mb-4">
                     <div>
                         <label class="lbl">팝업 장소명</label>
-                        <input type="text" id="set-location" class="inp" placeholder="신세계 센텀시티 부산">
+                        <input type="text" id="set-location" class="inp" placeholder="케이팝스퀘어 홍대">
                     </div>
                     <div>
                         <label class="lbl">온라인 스토어 URL</label>
@@ -154,7 +154,7 @@
                 </div>
                 <div class="bg-red-50 border border-red-200 rounded-xl px-4 py-2.5 mb-4 flex items-start gap-2">
                     <i data-lucide="alert-triangle" class="w-3.5 h-3.5 text-red-500 mt-0.5 shrink-0"></i>
-                    <p class="text-xs text-red-700 font-medium">비밀번호 변경 시 반드시 메모해두세요.</p>
+                    <p class="text-xs text-red-700 font-medium">비밀번호 변경 시 반드시 메모해두세요. 해당 지점 재고 관리 페이지 비밀번호도 함께 변경됩니다.</p>
                 </div>
                 <button id="save-settings-btn" class="btn btn-dark w-full py-3">
                     <i data-lucide="save" class="w-4 h-4"></i>
@@ -192,12 +192,12 @@
         </div>
         <div class="space-y-3">
             <div class="grid grid-cols-2 gap-3">
-                <div><label class="lbl">한글 상품명</label><input type="text" id="pm-name" class="inp" placeholder="MMMM_베이비 코스튬 인형"></div>
-                <div><label class="lbl">영문 상품명</label><input type="text" id="pm-engname" class="inp" placeholder="MMMM_BABY COSTUME PLUSH"></div>
+                <div><label class="lbl">한글 상품명</label><input type="text" id="pm-name" class="inp"></div>
+                <div><label class="lbl">영문 상품명</label><input type="text" id="pm-engname" class="inp"></div>
             </div>
             <div class="grid grid-cols-3 gap-3">
-                <div><label class="lbl">가격 (원)</label><input type="number" id="pm-price" class="inp" placeholder="23000"></div>
-                <div><label class="lbl">카테고리</label><input type="text" id="pm-category" class="inp" placeholder="PLUSH"></div>
+                <div><label class="lbl">가격 (원)</label><input type="number" id="pm-price" class="inp"></div>
+                <div><label class="lbl">카테고리</label><input type="text" id="pm-category" class="inp"></div>
                 <div>
                     <label class="lbl">이미지 미리보기</label>
                     <div id="img-preview" class="w-full h-[34px] rounded-lg bg-gray-100 border border-gray-200 overflow-hidden flex items-center justify-center text-gray-300">
@@ -221,6 +221,7 @@
                     <button data-preset="single" class="text-[11px] bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-lg px-2.5 py-1 font-semibold">단품</button>
                     <button data-preset="free"   class="text-[11px] bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-lg px-2.5 py-1 font-semibold">FREE</button>
                     <button data-preset="size"   class="text-[11px] bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-lg px-2.5 py-1 font-semibold">사이즈 S-XL</button>
+                    <button data-preset="dreami" class="text-[11px] bg-gray-100 hover:bg-gray-200 border border-gray-200 rounded-lg px-2.5 py-1 font-semibold">드리미즈 7종</button>
                 </div>
             </div>
         </div>
@@ -248,82 +249,92 @@ firebase.initializeApp({
 });
 var auth = firebase.auth();
 var db   = firebase.firestore();
-var APP_ID        = 'mmmm-popup-busan-v1';
-var STOCK_PATH    = 'artifacts/'+APP_ID+'/public/data/inventory/all_stock';
-var PRODUCTS_PATH = 'artifacts/'+APP_ID+'/public/data/config/products';
-var SETTINGS_PATH = 'artifacts/'+APP_ID+'/public/data/config/settings';
 
-var MMMM_OPTS = [{name:"먀미",en:"meowmi"},{name:"므모",en:"muhmo"},{name:"미므",en:"miimu"},{name:"뫄",en:"moi"},{name:"몌무",en:"meymu"}];
-var DEFAULT_PRODUCTS = [
-    {id:"g0",  name:"MMMM_베이비 코스튬 인형",       engName:"MMMM_BABY COSTUME PLUSH",        price:23000, category:"PLUSH",   image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/Plush_05.jpg?v=1770181303",         options:MMMM_OPTS},
-    {id:"g1",  name:"MMMM_베이비 댕글 모바일 참",     engName:"MMMM_BABY DGL MOBILE CHARM",     price:17000, category:"ACC",     image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/Mobile_Charm_02.jpg?v=1770181224",   options:MMMM_OPTS},
-    {id:"g2",  name:"MMMM_대형 모찌 얼굴 인형",       engName:"MMMM_FACE HUG PLUSH",            price:39000, category:"PLUSH",   image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/Cushion_01.jpg?v=1770180720",         options:MMMM_OPTS},
-    {id:"g3",  name:"MMMM_안아줘요 인형 크로스백",    engName:"MMMM_HUG ME PL CROSSBAG",        price:39000, category:"FASHION", image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/Crossbody-Bag_01_b21451ad-c952-489b-9564-feef049145d7.jpg?v=1770181008", options:MMMM_OPTS},
-    {id:"g4",  name:"MMMM_플러시 줄자 키링",          engName:"MMMM_PLUSH TAPELINE KEYRING",    price:16000, category:"ACC",     image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/Plush_Tape_Measure_01.jpg?v=1770181046", options:MMMM_OPTS},
-    {id:"g5",  name:"MMMM_얼굴 스트링 파우치",        engName:"MMMM_FACIAL STRING POUCH",       price:18000, category:"ACC",     image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/Drawstring-Pouch_01.jpg?v=1770180354",  options:MMMM_OPTS},
-    {id:"g6",  name:"MMMM_도킹형 보조배터리",         engName:"MMMM_DOCK AUXIL BATTERY",        price:29900, category:"TECH",    image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/01_68914793-d351-435d-adfe-2408f8fb8640.jpg?v=1770187778", options:MMMM_OPTS},
-    {id:"g7",  name:"MMMM_PVC 케이블 프로텍터",       engName:"MMMM_PVC CABLE PROTECTOR",       price:8900,  category:"TECH",    image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/01_9e2bfd6d-e906-4c59-82ac-ec188b6a554e.jpg?v=1770187844", options:MMMM_OPTS},
-    {id:"g8",  name:"MMMM_미니 모니터 피규어",        engName:"MMMM_MONITOR FIGURE",            price:10900, category:"TECH",    image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/01_e9442e8c-a0a2-4209-a996-28e892bc538e.jpg?v=1770187815", options:MMMM_OPTS},
-    {id:"g9",  name:"MMMM_포인트 레진 키캡",          engName:"MMMM_POINT RESIN KEYCAP",        price:28500, category:"TECH",    image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/01_586c9847-58a7-4ae9-a8d5-b089aabc90cc.jpg?v=1770178193", options:MMMM_OPTS},
-    {id:"g10", name:"MMMM_양말",                      engName:"MMMM_SOCKS",                     price:8000,  category:"FASHION", image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/01_9173e949-c758-4ea3-8d9d-cb4062145d84.jpg?v=1770179924", options:MMMM_OPTS},
-    {id:"g11", name:"MMMM_랜덤 플러시 뱃지(10types)", engName:"MMMM_RANDOM PLUSH BADGE(10TY)", price:12000, category:"ACC",     image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/Plush-Badge_01.jpg?v=1770181176",      options:[{name:"단품",en:""}]},
-    {id:"g12", name:"MMMM_PVC 투명 백참 파우치",      engName:"MMMM_PVC CLEAR BAGCHARM POUCH", price:18000, category:"ACC",     image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/Clear-Pouch_01.jpg?v=1770179727",      options:[{name:"단품",en:""}]},
-    {id:"g13", name:"MMMM_턴어라운드 머그",            engName:"MMMM_TURNAROUND MUG",            price:18000, category:"LIVING",  image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/Mug_01.jpg?v=1770178433",             options:[{name:"단품",en:""}]},
-    {id:"g14", name:"MMMM_레이어드 아크릴 마그넷",    engName:"MMMM_LAYERED ACR MAGNET",        price:8000,  category:"LIVING",  image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/01_6296e3a7-bc3d-4ff2-9afd-ff26698c7cf2.jpg?v=1770179130", options:MMMM_OPTS},
-    {id:"g15", name:"MMMM_응원봉 메탈참 스트랩",      engName:"MMMM_METAL CHARM STRAP",         price:16000, category:"ACC",     image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/01_0858f66b-aed6-462c-a268-fce58fa05d70.jpg?v=1770178517", options:MMMM_OPTS},
-    {id:"g16", name:"MMMM_후드 집업",                 engName:"MMMM_HOODIE ZIPUP",              price:75000, category:"FASHION", image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/01_8883ed28-f008-4245-bd8b-b3b47e8cd449.jpg?v=1770178397", options:[{name:"FREE",en:""}]}
-];
-var DEFAULT_SETTINGS = { location:"신세계 센텀시티 부산 (Shinsegae Centum City Busan)", storeUrl:"https://linefriendssquare.com/collections/mmmm?utm_source=OFFLINE_STOCK_BUSAN", adminPassword:"0715" };
-var PRESETS = {
-    mmmm:   [{name:"먀미",en:"meowmi"},{name:"므모",en:"muhmo"},{name:"미므",en:"miimu"},{name:"뫄",en:"moi"},{name:"몌무",en:"meymu"}],
-    single: [{name:"단품",en:""}], free: [{name:"FREE",en:""}],
-    size:   [{name:"S",en:""},{name:"M",en:""},{name:"L",en:""},{name:"XL",en:""}]
+// ── 지점 설정 ─────────────────────────────────────
+var BRANCHES = {
+    hongdae: {
+        appId: 'mmmm-popup-hongdae',
+        name:  '홍대점',
+        defaultLocation: '케이팝스퀘어 홍대 (K-POP SQUARE HONGDAE)',
+        defaultUrl: 'https://linefriendssquare.com',
+        badgeClass: 'bg-blue-50 text-blue-700 border-blue-200',
+        dotClass:   'bg-blue-500'
+    },
+    busan: {
+        appId: 'mmmm-popup-busan',
+        name:  '부산점',
+        defaultLocation: '신세계 센텀시티 부산 (Shinsegae Centum City Busan)',
+        defaultUrl: 'https://linefriendssquare.com',
+        badgeClass: 'bg-orange-50 text-orange-700 border-orange-200',
+        dotClass:   'bg-orange-500'
+    }
 };
 
+var PRESETS = {
+    mmmm:   [{name:"먀미",en:"meowmi"},{name:"므모",en:"muhmo"},{name:"미므",en:"miimu"},{name:"뫄",en:"moi"},{name:"몌무",en:"meymu"}],
+    single: [{name:"단품",en:""}],
+    free:   [{name:"FREE",en:""}],
+    size:   [{name:"S",en:""},{name:"M",en:""},{name:"L",en:""},{name:"XL",en:""}],
+    dreami: [{name:"eong",en:""},{name:"jjun",en:""},{name:"jjed",en:""},{name:"jjopoo",en:""},{name:"kkuping",en:""},{name:"lemyo",en:""},{name:"bamjji",en:""}]
+};
+
+// ── 상태 ──────────────────────────────────────────
+var currentBranch   = 'hongdae';
 var editingProducts = [];
-var savedSettings   = Object.assign({}, DEFAULT_SETTINGS);
+var savedSettings   = {};
 var previewStock    = {};
 var modalIdx  = null;
 var modalOpts = [];
 var dragSrc   = null;
 var stockUnsub = null;
+var adminPassword = '0715';
 
 function $id(id){ return document.getElementById(id); }
+function path(sub){ return 'artifacts/'+BRANCHES[currentBranch].appId+'/public/data/'+sub; }
 
+// ── Boot ──────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', function() {
     lucide.createIcons();
     bindEvents();
     auth.signInAnonymously()
-        .then(function(){ return db.doc(SETTINGS_PATH).get(); })
+        .then(function(){ return db.doc('artifacts/mmmm-popup-hongdae/public/data/config/settings').get(); })
         .then(function(snap){
-            if(snap.exists) savedSettings = Object.assign({}, DEFAULT_SETTINGS, snap.data());
+            if (snap.exists && snap.data().adminPassword) adminPassword = snap.data().adminPassword;
             $id('conn-note').innerText = '서버 연결 완료 ✓';
             $id('conn-note').className = 'text-center text-xs text-green-500 mt-3';
         })
         .catch(function(e){
-            console.error(e);
             $id('conn-note').innerText = '연결 실패';
             $id('conn-note').className = 'text-center text-xs text-red-400 mt-3';
         });
 });
 
+// ── 이벤트 바인딩 ─────────────────────────────────
 function bindEvents() {
     $id('admin-pw').addEventListener('keypress', function(e){ if(e.key==='Enter') doLogin(); });
     $id('login-btn').addEventListener('click', doLogin);
     $id('logout-btn').addEventListener('click', doLogout);
+
+    $id('branch-hongdae').addEventListener('click', function(){ switchBranch('hongdae'); });
+    $id('branch-busan').addEventListener('click',   function(){ switchBranch('busan'); });
+
     $id('tab-btn-products').addEventListener('click', function(){ switchTab('products'); });
     $id('tab-btn-settings').addEventListener('click',  function(){ switchTab('settings'); });
+
     $id('add-product-btn').addEventListener('click', openAdd);
     $id('save-products-btn').addEventListener('click', saveProducts);
     $id('save-settings-btn').addEventListener('click', saveSettings);
+
     $id('modal-close-btn').addEventListener('click', closeModal);
     $id('modal-cancel-btn').addEventListener('click', closeModal);
     $id('modal-save-btn').addEventListener('click', confirmModal);
     $id('product-modal').addEventListener('click', function(e){ if(e.target===this) closeModal(); });
+
     $id('add-option-btn').addEventListener('click', addOption);
     $id('opt-name').addEventListener('keypress', function(e){ if(e.key==='Enter'){e.preventDefault();addOption();} });
     $id('opt-en').addEventListener('keypress',   function(e){ if(e.key==='Enter'){e.preventDefault();addOption();} });
     $id('pm-image').addEventListener('input', function(e){ setImgPreview(e.target.value); });
+
     $id('preset-btns').addEventListener('click', function(e){
         var btn = e.target.closest('[data-preset]');
         if(!btn) return;
@@ -338,14 +349,15 @@ function bindEvents() {
     });
 }
 
+// ── Login / Logout ────────────────────────────────
 function doLogin() {
     var pw = $id('admin-pw').value;
-    if(pw !== (savedSettings.adminPassword||DEFAULT_SETTINGS.adminPassword)){
+    if (pw !== adminPassword) {
         $id('login-error').classList.remove('hidden');
-        $id('admin-pw').value=''; $id('admin-pw').focus(); return;
+        $id('admin-pw').value = ''; $id('admin-pw').focus(); return;
     }
     $id('login-error').classList.add('hidden');
-    loadAll().then(function(){
+    loadBranch().then(function(){
         $id('login-screen').classList.add('hidden');
         $id('main-screen').classList.remove('hidden');
         lucide.createIcons();
@@ -357,40 +369,66 @@ function doLogout() {
     if(stockUnsub){stockUnsub();stockUnsub=null;}
     $id('main-screen').classList.add('hidden');
     $id('login-screen').classList.remove('hidden');
-    $id('admin-pw').value='';
+    $id('admin-pw').value = '';
 }
 
-function loadAll() {
-    return db.doc(PRODUCTS_PATH).get()
-        .then(function(snap){
-            var raw = (snap.exists&&snap.data().list&&snap.data().list.length) ? snap.data().list : DEFAULT_PRODUCTS;
-            editingProducts = raw.map(function(p){
-                return Object.assign({},p,{options:p.options.map(function(o){
-                    return typeof o==='object'?{name:o.name||'',en:o.en||''}:{name:o,en:''};
-                })});
-            });
-        })
-        .catch(function(){
-            editingProducts = DEFAULT_PRODUCTS.map(function(p){return Object.assign({},p,{options:p.options.map(function(o){return Object.assign({},o);})});});
-        })
-        .then(function(){
-            $id('hdr-location').innerText       = savedSettings.location||'';
-            $id('preview-subtitle').innerText   = savedSettings.location||'';
-            $id('set-location').value = savedSettings.location||'';
-            $id('set-url').value      = savedSettings.storeUrl||'';
-            renderProductList();
-            renderPreview();
+// ── 지점 전환 ─────────────────────────────────────
+function switchBranch(branch) {
+    if (currentBranch === branch) return;
+    currentBranch = branch;
+
+    // 탭 UI
+    $id('branch-hongdae').className = 'branch-tab ' + (branch==='hongdae'?'on':'off');
+    $id('branch-busan').className   = 'branch-tab ' + (branch==='busan'?'on':'off');
+
+    // 배지
+    var b = BRANCHES[branch];
+    var badge = $id('branch-badge');
+    badge.className = 'inline-flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold mb-4 border ' + b.badgeClass;
+    badge.querySelector('span:first-child').className = 'w-1.5 h-1.5 rounded-full ' + b.dotClass;
+    $id('branch-badge-text').innerText = b.name + ' 편집 중';
+
+    if(stockUnsub){stockUnsub();stockUnsub=null;}
+    previewStock = {};
+    loadBranch().then(function(){ startStockListen(); });
+}
+
+// ── 데이터 로드 ───────────────────────────────────
+function loadBranch() {
+    return Promise.all([
+        db.doc(path('config/settings')).get(),
+        db.doc(path('config/products')).get()
+    ]).then(function(results) {
+        var b = BRANCHES[currentBranch];
+        var s = results[0].exists ? Object.assign({location:b.defaultLocation, storeUrl:b.defaultUrl, adminPassword:'0715'}, results[0].data())
+                                  : {location:b.defaultLocation, storeUrl:b.defaultUrl, adminPassword:'0715'};
+        savedSettings = s;
+
+        var raw = (results[1].exists && results[1].data().list && results[1].data().list.length) ? results[1].data().list : [];
+        editingProducts = raw.map(function(p){
+            return Object.assign({},p,{options:p.options.map(function(o){
+                return typeof o==='object'?{name:o.name||'',en:o.en||''}:{name:o,en:''};
+            })});
         });
+
+        $id('preview-subtitle').innerText = s.location || '';
+        $id('set-location').value = s.location || '';
+        $id('set-url').value      = s.storeUrl  || '';
+        $id('set-pw').value = '';
+        renderProductList();
+        renderPreview();
+    }).catch(function(e){ console.error(e); });
 }
 
 function startStockListen() {
     if(stockUnsub) stockUnsub();
-    stockUnsub = db.doc(STOCK_PATH).onSnapshot(function(snap){
+    stockUnsub = db.doc(path('inventory/all_stock')).onSnapshot(function(snap){
         previewStock = snap.exists ? snap.data() : {};
         renderPreview();
     });
 }
 
+// ── Tab ───────────────────────────────────────────
 function switchTab(tab) {
     $id('tab-products').classList.toggle('hidden', tab!=='products');
     $id('tab-settings').classList.toggle('hidden', tab!=='settings');
@@ -398,6 +436,7 @@ function switchTab(tab) {
     $id('tab-btn-settings').classList.toggle('on', tab==='settings');
 }
 
+// ── 상품 리스트 ───────────────────────────────────
 function renderProductList() {
     $id('product-list').innerHTML = editingProducts.map(function(p,idx){
         return '<div class="p-row" draggable="true" data-idx="'+idx+'">' +
@@ -438,6 +477,7 @@ function renderProductList() {
     };
 }
 
+// ── 미리보기 ──────────────────────────────────────
 function renderPreview() {
     $id('preview-list').innerHTML = editingProducts.map(function(p){
         var variants = p.options.map(function(o,i){
@@ -447,10 +487,10 @@ function renderPreview() {
         var allOut = variants.every(function(v){return v.out;});
         var opts = variants.map(function(v){
             return '<div class="pv-opt '+(v.out?'pv-out':'pv-in')+'">'+esc(v.name)+
-                (v.en?'<span class="text-[8px] opacity-60 uppercase font-normal">'+esc(v.en)+'</span>':'')+
+                (v.en?'<span class="text-[8px] opacity-60 uppercase font-normal"> '+esc(v.en)+'</span>':'')+
             '</div>';
         }).join('');
-        return '<div class="pv-card'+(allOut?' all-out':'')+'">' +
+        return '<div class="pv-card'+(allOut?' border-gray-200':'')+'">' +
             (allOut?'<div class="pv-soldout"><span class="bg-red-600 text-white text-[10px] font-black px-3 py-1 rounded-full -rotate-12 shadow">SOLD OUT</span></div>':'') +
             '<div class="flex gap-2">' +
                 '<img src="'+(p.image||'')+'" class="w-14 h-14 rounded-lg object-cover border border-gray-100 bg-gray-100 shrink-0'+(allOut?' grayscale opacity-50':'')+'">' +
@@ -465,14 +505,15 @@ function renderPreview() {
     }).join('');
 }
 
+// ── Save products ─────────────────────────────────
 function saveProducts() {
     var btn=$id('save-products-btn');
     btn.disabled=true; btn.innerHTML='<div class="spin"></div><span>저장 중...</span>';
     var stockObj={};
     editingProducts.forEach(function(p){ p.options.forEach(function(o,i){ stockObj[p.id+'_'+i]='IN_STOCK'; }); });
-    db.doc(PRODUCTS_PATH).set({list:editingProducts})
-        .then(function(){ return db.doc(STOCK_PATH).set(stockObj); })
-        .then(function(){ previewStock=stockObj; renderPreview(); showToast('저장 완료! 고객 화면이 업데이트되었습니다.'); })
+    db.doc(path('config/products')).set({list:editingProducts})
+        .then(function(){ return db.doc(path('inventory/all_stock')).set(stockObj); })
+        .then(function(){ previewStock=stockObj; renderPreview(); showToast(BRANCHES[currentBranch].name+' 저장 완료!'); })
         .catch(function(e){ alert('저장 실패: '+e.message); })
         .finally(function(){
             btn.disabled=false;
@@ -481,6 +522,7 @@ function saveProducts() {
         });
 }
 
+// ── Save settings ─────────────────────────────────
 function saveSettings() {
     var btn=$id('save-settings-btn');
     btn.disabled=true; btn.innerHTML='<div class="spin"></div><span>저장 중...</span>';
@@ -490,10 +532,11 @@ function saveSettings() {
     if(location) savedSettings.location=location;
     if(storeUrl) savedSettings.storeUrl=storeUrl;
     if(newPw)    savedSettings.adminPassword=newPw;
-    db.doc(SETTINGS_PATH).set(savedSettings)
+    db.doc(path('config/settings')).set(savedSettings)
         .then(function(){
-            $id('hdr-location').innerText=$id('preview-subtitle').innerText=savedSettings.location||'';
-            $id('set-pw').value=''; showToast('설정 저장 완료!');
+            $id('preview-subtitle').innerText=savedSettings.location||'';
+            $id('set-pw').value='';
+            showToast(BRANCHES[currentBranch].name+' 설정 저장 완료!');
         })
         .catch(function(e){ alert('저장 실패: '+e.message); })
         .finally(function(){
@@ -503,6 +546,7 @@ function saveSettings() {
         });
 }
 
+// ── Modal ─────────────────────────────────────────
 function openAdd() {
     modalIdx=null; modalOpts=[];
     ['pm-name','pm-engname','pm-price','pm-category','pm-image'].forEach(function(id){$id(id).value='';});
@@ -510,7 +554,6 @@ function openAdd() {
     resetImgPreview(); renderOptionTags();
     $id('product-modal').classList.remove('hidden'); lucide.createIcons(); $id('pm-name').focus();
 }
-
 function openEdit(idx) {
     modalIdx=idx; var p=editingProducts[idx];
     modalOpts=p.options.map(function(o){return Object.assign({},o);});
@@ -521,9 +564,7 @@ function openEdit(idx) {
     setImgPreview(p.image); renderOptionTags();
     $id('product-modal').classList.remove('hidden'); lucide.createIcons();
 }
-
 function closeModal() { $id('product-modal').classList.add('hidden'); }
-
 function confirmModal() {
     var name=$id('pm-name').value.trim(), engName=$id('pm-engname').value.trim();
     var price=parseInt($id('pm-price').value)||0, category=$id('pm-category').value.trim().toUpperCase();
@@ -535,19 +576,18 @@ function confirmModal() {
     else editingProducts.push(product);
     closeModal(); renderProductList(); renderPreview();
 }
-
 function deleteProduct(idx) {
     if(!confirm('"'+editingProducts[idx].name+'" 삭제할까요?')) return;
     editingProducts.splice(idx,1); renderProductList(); renderPreview();
 }
 
+// ── Options ───────────────────────────────────────
 function addOption() {
     var name=$id('opt-name').value.trim(), en=$id('opt-en').value.trim();
     if(!name){$id('opt-name').focus();return;}
     if(!modalOpts.find(function(o){return o.name===name;})) { modalOpts.push({name:name,en:en}); renderOptionTags(); }
     $id('opt-name').value=''; $id('opt-en').value=''; $id('opt-name').focus();
 }
-
 function renderOptionTags() {
     if(!modalOpts.length){ $id('option-tags').innerHTML='<span class="text-xs text-gray-400 self-center">옵션을 추가하세요</span>'; return; }
     $id('option-tags').innerHTML = modalOpts.map(function(o,i){
@@ -556,12 +596,14 @@ function renderOptionTags() {
     }).join('');
 }
 
+// ── Image preview ─────────────────────────────────
 function setImgPreview(url) {
     if(url) $id('img-preview').innerHTML='<img src="'+url+'" class="w-full h-full object-cover">';
     else resetImgPreview();
 }
 function resetImgPreview() { $id('img-preview').innerHTML='<i data-lucide="image" class="w-4 h-4"></i>'; lucide.createIcons(); }
 
+// ── Toast / Util ──────────────────────────────────
 function showToast(msg) {
     $id('toast-msg').innerText=msg; $id('toast').classList.remove('hidden');
     setTimeout(function(){$id('toast').classList.add('hidden');},2500);
