@@ -2,198 +2,373 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>POP-UP LIVE STOCK_v2</title>
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-1FXXBJ88B8"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-      gtag('config', 'G-1FXXBJ88B8');
-    </script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/lucide@latest"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>POPUP STOCK SYSTEM</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Bebas+Neue&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css" />
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
     <style>
-        body { font-family: "Pretendard Variable", Pretendard, sans-serif; overflow: hidden; }
-        .scrollbar-hide::-webkit-scrollbar { display: none; }
-        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
-        .animate-marquee { display: inline-block; padding-left: 100%; animation: marquee 18s linear infinite; }
-        @keyframes marquee { 0%{transform:translate(0,0);} 100%{transform:translate(-100%,0);} }
-        .opt-badge { font-size:11px; padding:4px 8px; border-radius:6px; font-weight:700; border:1px solid transparent; display:flex; align-items:center; justify-content:space-between; }
-        .opt-in  { background:#DCFCE7; color:#166534; border-color:#86EFAC; }
-        .opt-out { background:#FEE2E2; color:#991B1B; border-color:#FECACA; text-decoration:line-through; }
-        .soldout-overlay { position:absolute; inset:0; background:rgba(255,255,255,0.6); backdrop-filter:blur(2px); z-index:10; display:flex; align-items:center; justify-content:center; border-radius:10px; }
-        .spinner { border:2px solid rgba(0,0,0,0.1); border-left-color:#000; border-radius:50%; width:16px; height:16px; animation:spin 1s linear infinite; }
-        @keyframes spin { to{transform:rotate(360deg);} }
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+        :root {
+            --black: #0a0a0a;
+            --white: #f5f4f0;
+            --gray: #8a8a8a;
+            --border: #2a2a2a;
+            --hongdae: #4ade80;
+            --busan: #fb923c;
+            --admin: #a78bfa;
+        }
+
+        body {
+            background: var(--black);
+            color: var(--white);
+            font-family: "Pretendard Variable", Pretendard, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        /* 배경 노이즈 텍스처 */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            max-width: 680px;
+            margin: 0 auto;
+            padding: 60px 32px 48px;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* 헤더 */
+        .header {
+            margin-bottom: 56px;
+        }
+
+        .eyebrow {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            letter-spacing: 0.2em;
+            color: var(--gray);
+            text-transform: uppercase;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .eyebrow::before {
+            content: '';
+            display: inline-block;
+            width: 20px;
+            height: 1px;
+            background: var(--gray);
+        }
+
+        .title {
+            font-family: 'Bebas Neue', sans-serif;
+            font-size: clamp(52px, 12vw, 88px);
+            line-height: 0.9;
+            letter-spacing: 0.02em;
+            color: var(--white);
+        }
+
+        .title span {
+            display: block;
+            color: transparent;
+            -webkit-text-stroke: 1px rgba(245,244,240,0.3);
+        }
+
+        .subtitle {
+            margin-top: 20px;
+            font-size: 13px;
+            color: var(--gray);
+            line-height: 1.6;
+            max-width: 360px;
+        }
+
+        /* 섹션 구분 */
+        .section-label {
+            font-family: 'DM Mono', monospace;
+            font-size: 9px;
+            letter-spacing: 0.25em;
+            color: var(--gray);
+            text-transform: uppercase;
+            margin-bottom: 12px;
+            opacity: 0.6;
+        }
+
+        .section { margin-bottom: 36px; }
+
+        /* 카드 버튼 */
+        .card {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 20px;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            background: transparent;
+            color: var(--white);
+            text-decoration: none;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            margin-bottom: 8px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .card:hover {
+            border-color: transparent;
+            transform: translateX(4px);
+        }
+
+        .card:hover::before { opacity: 1; }
+        .card:active { transform: translateX(4px) scale(0.99); }
+
+        /* 홍대 */
+        .card-hongdae::before { background: linear-gradient(135deg, rgba(74,222,128,0.08), transparent); }
+        .card-hongdae:hover { border-color: rgba(74,222,128,0.3); box-shadow: 0 0 0 1px rgba(74,222,128,0.3), inset 0 0 20px rgba(74,222,128,0.04); }
+        .card-hongdae .dot { background: var(--hongdae); }
+        .card-hongdae .arrow { color: var(--hongdae); }
+
+        /* 부산 */
+        .card-busan::before { background: linear-gradient(135deg, rgba(251,146,60,0.08), transparent); }
+        .card-busan:hover { border-color: rgba(251,146,60,0.3); box-shadow: 0 0 0 1px rgba(251,146,60,0.3), inset 0 0 20px rgba(251,146,60,0.04); }
+        .card-busan .dot { background: var(--busan); }
+        .card-busan .arrow { color: var(--busan); }
+
+        /* 어드민 */
+        .card-admin::before { background: linear-gradient(135deg, rgba(167,139,250,0.08), transparent); }
+        .card-admin:hover { border-color: rgba(167,139,250,0.3); box-shadow: 0 0 0 1px rgba(167,139,250,0.3), inset 0 0 20px rgba(167,139,250,0.04); }
+        .card-admin .dot { background: var(--admin); }
+        .card-admin .arrow { color: var(--admin); }
+
+        .card-left {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            shrink: 0;
+            flex-shrink: 0;
+        }
+
+        .dot.pulse { animation: pulse 2s ease-in-out infinite; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.5; transform: scale(0.8); }
+        }
+
+        .card-info {}
+
+        .card-name {
+            font-size: 14px;
+            font-weight: 700;
+            line-height: 1.2;
+            color: var(--white);
+        }
+
+        .card-desc {
+            font-size: 11px;
+            color: var(--gray);
+            margin-top: 2px;
+            font-family: 'DM Mono', monospace;
+        }
+
+        .arrow {
+            font-size: 18px;
+            font-weight: 300;
+            position: relative;
+            z-index: 1;
+            transition: transform 0.2s ease;
+        }
+
+        .card:hover .arrow { transform: translateX(3px); }
+
+        /* 구분선 */
+        .divider {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 4px 0 12px;
+        }
+
+        /* 푸터 */
+        .footer {
+            margin-top: auto;
+            padding-top: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .footer-left {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            color: var(--gray);
+            opacity: 0.5;
+        }
+
+        .footer-right {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            color: var(--gray);
+            opacity: 0.5;
+        }
+
+        #clock {
+            font-family: 'DM Mono', monospace;
+            font-size: 10px;
+            color: var(--gray);
+            opacity: 0.5;
+        }
+
+        /* 입장 애니메이션 */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(16px);
+            animation: fadeUp 0.5s ease forwards;
+        }
+
+        @keyframes fadeUp {
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-up:nth-child(1) { animation-delay: 0.05s; }
+        .fade-up:nth-child(2) { animation-delay: 0.1s; }
+        .fade-up:nth-child(3) { animation-delay: 0.15s; }
+        .fade-up:nth-child(4) { animation-delay: 0.2s; }
+        .fade-up:nth-child(5) { animation-delay: 0.25s; }
+        .fade-up:nth-child(6) { animation-delay: 0.3s; }
+        .fade-up:nth-child(7) { animation-delay: 0.35s; }
+
+        @media (max-width: 480px) {
+            .container { padding: 40px 20px 32px; }
+            .header { margin-bottom: 40px; }
+        }
     </style>
 </head>
-<body class="bg-[#f8f9fa] text-[#111] h-[100dvh] flex flex-col justify-center items-center">
+<body>
+<div class="container">
 
-<div class="w-full max-w-md h-full sm:h-auto sm:max-h-[95vh] flex flex-col sm:border sm:rounded-xl sm:shadow-xl bg-white overflow-hidden">
-    <div class="w-full h-full flex flex-col bg-white relative overflow-hidden">
-
-        <!-- 헤더 -->
-        <div class="p-4 flex items-center justify-between shrink-0 bg-white border-b border-gray-100">
-            <div>
-                <p class="font-bold text-xl leading-none tracking-tight">POP-UP LIVE STOCK</p>
-                <p id="subtitle" class="text-[10px] text-gray-500 font-medium mt-1">Loading...</p>
-            </div>
-            <span id="last-updated" class="text-[10px] text-gray-400 font-mono">syncing...</span>
-        </div>
-
-        <!-- 배너 -->
-        <div class="bg-gray-600 text-white px-4 py-2.5 text-xs font-bold overflow-hidden whitespace-nowrap flex items-center gap-2 shrink-0">
-            <span class="w-1.5 h-1.5 rounded-full bg-red-500 animate-pulse shrink-0"></span>
-            <div class="animate-marquee">실시간 재고 현황입니다. 붉은색 표시는 품절입니다. 현장 상황에 따라 차이가 있을 수 있습니다.</div>
-        </div>
-
-        <div id="product-list" class="flex-1 overflow-y-auto p-4 pb-36 scrollbar-hide space-y-4"></div>
-
-        <!-- 푸터 -->
-        <div class="absolute bottom-0 left-0 right-0 p-4 bg-white/95 backdrop-blur border-t border-gray-100 z-20 flex flex-col gap-2">
-            <button onclick="manualRefresh()" class="w-full bg-gray-600 hover:bg-gray-700 text-white font-bold py-3.5 rounded-lg flex items-center justify-center gap-2 text-sm active:scale-[0.98] transition-all">
-                <i data-lucide="refresh-cw" class="w-4 h-4"></i> 새로고침
-            </button>
-            <a id="store-link" href="#" target="_blank" class="w-full bg-white border border-gray-200 text-[#111] font-bold py-3.5 rounded-lg flex items-center justify-center gap-2 text-sm active:scale-[0.98] transition-all">
-                <i data-lucide="shopping-bag" class="w-4 h-4"></i> 온라인 스토어 방문하기
-            </a>
-        </div>
+    <!-- 헤더 -->
+    <div class="header">
+        <div class="eyebrow fade-up">LINE FRIENDS SQUARE · POPUP SYSTEM</div>
+        <h1 class="title fade-up">
+            LIVE<br>
+            <span>STOCK</span>
+        </h1>
+        <p class="subtitle fade-up">실시간 팝업 재고 관리 시스템.<br>지점을 선택하거나 관리자로 로그인하세요.</p>
     </div>
+
+    <!-- 고객용 -->
+    <div class="section">
+        <p class="section-label fade-up">고객용 재고 현황</p>
+        <a href="index-hongdae.html" class="card card-hongdae fade-up">
+            <div class="card-left">
+                <div class="dot pulse" style="background:var(--hongdae)"></div>
+                <div class="card-info">
+                    <div class="card-name">홍대점 재고 현황</div>
+                    <div class="card-desc">K-POP SQUARE HONGDAE</div>
+                </div>
+            </div>
+            <span class="arrow">→</span>
+        </a>
+        <a href="index-busan.html" class="card card-busan fade-up">
+            <div class="card-left">
+                <div class="dot pulse" style="background:var(--busan)"></div>
+                <div class="card-info">
+                    <div class="card-name">부산점 재고 현황</div>
+                    <div class="card-desc">SHINSEGAE CENTUM CITY BUSAN</div>
+                </div>
+            </div>
+            <span class="arrow">→</span>
+        </a>
+    </div>
+
+    <!-- 스태프용 -->
+    <div class="section">
+        <p class="section-label fade-up">현장 스태프용</p>
+        <a href="stock-manager-hongdae.html" class="card card-hongdae fade-up">
+            <div class="card-left">
+                <div class="dot" style="background:var(--hongdae); opacity:0.6"></div>
+                <div class="card-info">
+                    <div class="card-name">홍대점 재고 관리</div>
+                    <div class="card-desc">STOCK MANAGER · HONGDAE</div>
+                </div>
+            </div>
+            <span class="arrow">→</span>
+        </a>
+        <a href="stock-manager-busan.html" class="card card-busan fade-up">
+            <div class="card-left">
+                <div class="dot" style="background:var(--busan); opacity:0.6"></div>
+                <div class="card-info">
+                    <div class="card-name">부산점 재고 관리</div>
+                    <div class="card-desc">STOCK MANAGER · BUSAN</div>
+                </div>
+            </div>
+            <span class="arrow">→</span>
+        </a>
+    </div>
+
+    <!-- 어드민 -->
+    <div class="section">
+        <p class="section-label fade-up">관리자</p>
+        <a href="admin.html" class="card card-admin fade-up">
+            <div class="card-left">
+                <div class="dot" style="background:var(--admin)"></div>
+                <div class="card-info">
+                    <div class="card-name">통합 어드민</div>
+                    <div class="card-desc">ADMIN · 홍대 + 부산 관리</div>
+                </div>
+            </div>
+            <span class="arrow">→</span>
+        </a>
+    </div>
+
+    <!-- 푸터 -->
+    <div class="footer fade-up">
+        <span class="footer-left">LINE FRIENDS SQ. © 2025</span>
+        <span id="clock"></span>
+    </div>
+
 </div>
 
 <script>
-firebase.initializeApp({
-    apiKey: "AIzaSyA-Ggw0br9mlCiXUmF8qgn72wegwq3yqoQ",
-    authDomain: "popup-stock-busan.firebaseapp.com",
-    projectId: "popup-stock-busan",
-    storageBucket: "popup-stock-busan.firebasestorage.app",
-    messagingSenderId: "499098237372",
-    appId: "1:499098237372:web:51a46cc75dea2d635693b9"
-});
-var auth = firebase.auth();
-var db   = firebase.firestore();
-var APP_ID = 'mmmm-popup-busan-v1';
-
-var MMMM_OPTS = [{name:"먀미",en:"meowmi"},{name:"므모",en:"muhmo"},{name:"미므",en:"miimu"},{name:"뫄",en:"moi"},{name:"몌무",en:"meymu"}];
-var DEFAULT_PRODUCTS = [
-    {id:"g0",  name:"MMMM_베이비 코스튬 인형",       engName:"MMMM_BABY COSTUME PLUSH",        price:23000, category:"PLUSH",   image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/Plush_05.jpg?v=1770181303",         options:MMMM_OPTS},
-    {id:"g1",  name:"MMMM_베이비 댕글 모바일 참",     engName:"MMMM_BABY DGL MOBILE CHARM",     price:17000, category:"ACC",     image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/Mobile_Charm_02.jpg?v=1770181224",   options:MMMM_OPTS},
-    {id:"g2",  name:"MMMM_대형 모찌 얼굴 인형",       engName:"MMMM_FACE HUG PLUSH",            price:39000, category:"PLUSH",   image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/Cushion_01.jpg?v=1770180720",         options:MMMM_OPTS},
-    {id:"g3",  name:"MMMM_안아줘요 인형 크로스백",    engName:"MMMM_HUG ME PL CROSSBAG",        price:39000, category:"FASHION", image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/Crossbody-Bag_01_b21451ad-c952-489b-9564-feef049145d7.jpg?v=1770181008", options:MMMM_OPTS},
-    {id:"g4",  name:"MMMM_플러시 줄자 키링",          engName:"MMMM_PLUSH TAPELINE KEYRING",    price:16000, category:"ACC",     image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/Plush_Tape_Measure_01.jpg?v=1770181046", options:MMMM_OPTS},
-    {id:"g5",  name:"MMMM_얼굴 스트링 파우치",        engName:"MMMM_FACIAL STRING POUCH",       price:18000, category:"ACC",     image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/Drawstring-Pouch_01.jpg?v=1770180354",  options:MMMM_OPTS},
-    {id:"g6",  name:"MMMM_도킹형 보조배터리",         engName:"MMMM_DOCK AUXIL BATTERY",        price:29900, category:"TECH",    image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/01_68914793-d351-435d-adfe-2408f8fb8640.jpg?v=1770187778", options:MMMM_OPTS},
-    {id:"g7",  name:"MMMM_PVC 케이블 프로텍터",       engName:"MMMM_PVC CABLE PROTECTOR",       price:8900,  category:"TECH",    image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/01_9e2bfd6d-e906-4c59-82ac-ec188b6a554e.jpg?v=1770187844", options:MMMM_OPTS},
-    {id:"g8",  name:"MMMM_미니 모니터 피규어",        engName:"MMMM_MONITOR FIGURE",            price:10900, category:"TECH",    image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/01_e9442e8c-a0a2-4209-a996-28e892bc538e.jpg?v=1770187815", options:MMMM_OPTS},
-    {id:"g9",  name:"MMMM_포인트 레진 키캡",          engName:"MMMM_POINT RESIN KEYCAP",        price:28500, category:"TECH",    image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/01_586c9847-58a7-4ae9-a8d5-b089aabc90cc.jpg?v=1770178193", options:MMMM_OPTS},
-    {id:"g10", name:"MMMM_양말",                      engName:"MMMM_SOCKS",                     price:8000,  category:"FASHION", image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/01_9173e949-c758-4ea3-8d9d-cb4062145d84.jpg?v=1770179924", options:MMMM_OPTS},
-    {id:"g11", name:"MMMM_랜덤 플러시 뱃지(10types)", engName:"MMMM_RANDOM PLUSH BADGE(10TY)", price:12000, category:"ACC",     image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/Plush-Badge_01.jpg?v=1770181176",      options:[{name:"단품",en:""}]},
-    {id:"g12", name:"MMMM_PVC 투명 백참 파우치",      engName:"MMMM_PVC CLEAR BAGCHARM POUCH", price:18000, category:"ACC",     image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/Clear-Pouch_01.jpg?v=1770179727",      options:[{name:"단품",en:""}]},
-    {id:"g13", name:"MMMM_턴어라운드 머그",            engName:"MMMM_TURNAROUND MUG",            price:18000, category:"LIVING",  image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/Mug_01.jpg?v=1770178433",             options:[{name:"단품",en:""}]},
-    {id:"g14", name:"MMMM_레이어드 아크릴 마그넷",    engName:"MMMM_LAYERED ACR MAGNET",        price:8000,  category:"LIVING",  image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/01_6296e3a7-bc3d-4ff2-9afd-ff26698c7cf2.jpg?v=1770179130", options:MMMM_OPTS},
-    {id:"g15", name:"MMMM_응원봉 메탈참 스트랩",      engName:"MMMM_METAL CHARM STRAP",         price:16000, category:"ACC",     image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/01_0858f66b-aed6-462c-a268-fce58fa05d70.jpg?v=1770178517", options:MMMM_OPTS},
-    {id:"g16", name:"MMMM_후드 집업",                 engName:"MMMM_HOODIE ZIPUP",              price:75000, category:"FASHION", image:"https://cdn.shopify.com/s/files/1/0513/1599/8919/files/01_8883ed28-f008-4245-bd8b-b3b47e8cd449.jpg?v=1770178397", options:[{name:"FREE",en:""}]}
-];
-var DEFAULT_SETTINGS = {
-    location: "신세계 센텀시티 부산 (Shinsegae Centum City Busan)",
-    storeUrl: "https://linefriendssquare.com/collections/mmmm?utm_source=OFFLINE_STOCK_BUSAN"
-};
-
-var products = [];
-var unsub = null;
-
-document.addEventListener('DOMContentLoaded', function() {
-    lucide.createIcons();
-    auth.signInAnonymously().then(function() {
-        loadConfig();
-    }).catch(console.error);
-
-    document.addEventListener('visibilitychange', function() {
-        if (document.visibilityState === 'hidden') { if(unsub){unsub();unsub=null;} }
-        else listenStock();
-    });
-});
-
-function loadConfig() {
-    Promise.all([
-        db.doc('artifacts/'+APP_ID+'/public/data/config/settings').get(),
-        db.doc('artifacts/'+APP_ID+'/public/data/config/products').get()
-    ]).then(function(results) {
-        var sSnap = results[0], pSnap = results[1];
-        var settings = sSnap.exists ? Object.assign({}, DEFAULT_SETTINGS, sSnap.data()) : DEFAULT_SETTINGS;
-        document.getElementById('subtitle').innerText = settings.location;
-        document.getElementById('store-link').href = settings.storeUrl;
-
-        var raw = (pSnap.exists && pSnap.data().list && pSnap.data().list.length) ? pSnap.data().list : DEFAULT_PRODUCTS;
-        products = raw.map(function(p) {
-            return Object.assign({}, p, {
-                variants: p.options.map(function(o,i) {
-                    return { id:p.id+'_'+i, name:typeof o==='object'?o.name:o, en:typeof o==='object'?(o.en||''):'', status:'IN_STOCK' };
-                })
-            });
-        });
-        render();
-        listenStock();
-    }).catch(function() {
-        document.getElementById('subtitle').innerText = DEFAULT_SETTINGS.location;
-        document.getElementById('store-link').href = DEFAULT_SETTINGS.storeUrl;
-        products = DEFAULT_PRODUCTS.map(function(p) {
-            return Object.assign({}, p, { variants: p.options.map(function(o,i){ return {id:p.id+'_'+i,name:o.name||o,en:o.en||'',status:'IN_STOCK'}; }) });
-        });
-        render();
-    });
+function updateClock() {
+    var now = new Date();
+    document.getElementById('clock').innerText = now.toLocaleTimeString('ko-KR', {hour:'2-digit', minute:'2-digit', second:'2-digit'});
 }
-
-function listenStock() {
-    if (unsub) return;
-    unsub = db.doc('artifacts/'+APP_ID+'/public/data/inventory/all_stock').onSnapshot(function(snap) {
-        if (snap.exists) {
-            var d = snap.data();
-            products.forEach(function(g) { g.variants.forEach(function(v) { if(d[v.id]) v.status=d[v.id]; }); });
-        }
-        render();
-        var t = new Date();
-        document.getElementById('last-updated').innerText = 'Live: '+t.toLocaleTimeString('ko-KR',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-    });
-}
-
-function render() {
-    document.getElementById('product-list').innerHTML = products.map(function(g) {
-        var allOut = g.variants.every(function(v){return v.status==='SOLD_OUT';});
-        var opts = g.variants.map(function(v) {
-            var out = v.status==='SOLD_OUT';
-            return '<div class="opt-badge '+(out?'opt-out':'opt-in')+'">' +
-                '<div class="flex items-baseline gap-1"><span>'+v.name+'</span>'+(v.en?'<span class="text-[9px] opacity-60 uppercase font-normal">'+v.en+'</span>':'')+'</div>' +
-                '<span class="text-[9px] opacity-80 ml-1 whitespace-nowrap">'+(out?'SOLD OUT':'재고 있음')+'</span>' +
-            '</div>';
-        }).join('');
-        return '<div class="relative bg-white border-2 '+(allOut?'border-gray-200':'border-black/5')+' rounded-xl p-3 shadow-sm overflow-hidden">' +
-            (allOut?'<div class="soldout-overlay"><div class="bg-red-600 text-white text-sm font-black px-4 py-2 rounded-full border-2 border-white -rotate-12 shadow-lg">SOLD OUT</div></div>':'') +
-            '<div class="flex gap-4">' +
-                '<div class="w-24 h-24 shrink-0 rounded-lg bg-gray-50 overflow-hidden border border-black/5">' +
-                    '<img src="'+g.image+'" class="w-full h-full object-cover'+(allOut?' grayscale opacity-50':'')+'" loading="lazy">' +
-                '</div>' +
-                '<div class="flex-1 min-w-0 flex flex-col">' +
-                    '<span class="text-[10px] text-gray-400 font-bold tracking-wider">'+g.category+'</span>' +
-                    '<h3 class="text-sm font-bold text-gray-900 leading-tight mb-0.5">'+g.name+'</h3>' +
-                    '<p class="text-[10px] text-gray-400 leading-tight mb-1 truncate">'+g.engName+'</p>' +
-                    '<div class="text-sm font-bold mt-auto">₩'+Number(g.price).toLocaleString()+'</div>' +
-                '</div>' +
-            '</div>' +
-            '<div class="mt-3 grid grid-cols-2 gap-1.5'+(allOut?' opacity-30 grayscale':'')+'">'+opts+'</div>' +
-        '</div>';
-    }).join('');
-    lucide.createIcons();
-}
-
-function manualRefresh() {
-    render();
-    if(typeof gtag==='function') gtag('event','click_refresh',{event_category:'engagement'});
-}
+updateClock();
+setInterval(updateClock, 1000);
 </script>
 </body>
 </html>
