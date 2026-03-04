@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
-<title>Sally RUN</title>
+<title>SQUARE RUN</title>
 <style>
 @import url('https://fonts.googleapis.com/css2?family=DotGothic16&family=Press+Start+2P&display=swap');
 
@@ -629,13 +629,7 @@ function drawDead() {
 }
 
 // 점수 flash 효과
-function drawScoreFlash() {
-  if (flashTimer <= 0) return;
-  flashTimer--;
-  const alpha = flashTimer / 30;
-  ctx.fillStyle = `rgba(232,93,58,${alpha * 0.15})`;
-  ctx.fillRect(0, 0, GW, GH);
-}
+function drawScoreFlash() { /* 비활성화 */ }
 
 // ── 메인 루프 ─────────────────────────────────────────────────
 let lastT = 0;
@@ -739,6 +733,8 @@ function loop(ts) {
 // ── 입력 ──────────────────────────────────────────────────────
 document.addEventListener('keydown', e => {
   if (e.code === 'Space' || e.code === 'ArrowUp') {
+    // 랭킹 오버레이 열려있으면 점프 막기
+    if (document.getElementById('ranking-overlay').classList.contains('show')) return;
     e.preventDefault(); jump();
   }
 });
@@ -759,6 +755,7 @@ requestAnimationFrame(loop);
     </div>
     <div id="name-input-wrap">
       <div id="name-input-label">ENTER YOUR NAME</div>
+      <div style="font-size:5px;color:var(--mid);font-family:monospace;letter-spacing:1px;">ENGLISH ONLY</div>
       <input id="name-input" maxlength="10" placeholder="NAME" spellcheck="false" autocomplete="off" inputmode="latin">
       <button id="name-submit">REGISTER ▶</button>
     </div>
