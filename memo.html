@@ -263,6 +263,40 @@ header {
 }
 .product-item.checked .product-price { color: #444; }
 
+/* ── 수량 스테퍼 ── */
+.qty-ctrl {
+  display: none;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.product-item.checked .qty-ctrl { display: flex; }
+.qty-btn {
+  width: 26px;
+  height: 26px;
+  background: #1e1e1e;
+  border: 1px solid #333;
+  border-radius: 3px;
+  color: var(--accent);
+  font-size: 17px;
+  line-height: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  flex-shrink: 0;
+  transition: background 0.15s;
+}
+.qty-btn:active { background: #2a2a2a; }
+.qty-num {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: 17px;
+  color: var(--white);
+  min-width: 16px;
+  text-align: center;
+}
+
 /* ── 옵션 선택 패널 ── */
 .options-panel {
   background: #0d0d0d;
@@ -663,7 +697,7 @@ function renderProductList() {
   list.innerHTML = '';
 
   products.forEach(function(p) {
-    var isChecked = !!checkedProducts[p.id];
+    var isChecked = (checkedProducts[p.id] || 0) > 0;
     var item = document.createElement('div');
     item.className = 'product-item' + (isChecked ? ' checked' : '');
     item.setAttribute('data-id', p.id);
@@ -677,6 +711,8 @@ function renderProductList() {
     var catStr   = p.category || '';
     var metaParts = [catStr, priceStr].filter(Boolean);
 
+    var initQty = (checkedProducts[p.id] || 0) > 0 ? checkedProducts[p.id] : 1;
+
     item.innerHTML =
       '<div class="product-checkbox">'
         + '<svg class="check-icon" viewBox="0 0 12 10"><polyline points="1.5 5 4.5 8.5 10.5 1.5"/></svg>'
@@ -686,7 +722,15 @@ function renderProductList() {
         + '<div class="product-name">' + escapeHtml(p.name) + '</div>'
         + '<div class="product-meta">' + metaParts.map(escapeHtml).join(' · ') + '</div>'
       + '</div>'
+      + '<div class="qty-ctrl">'
+        + '<button class="qty-btn qty-minus">−</button>'
+        + '<span class="qty-num">' + initQty + '</span>'
+        + '<button class="qty-btn qty-plus">+</button>'
+      + '</div>'
       + (priceStr ? '<div class="product-price">' + escapeHtml(priceStr) + '</div>' : '');
+
+    item.querySelector('.qty-minus').addEventListener('click', function(e) { changeQty(p.id, -1, e); });
+    item.querySelector('.qty-plus').addEventListener('click',  function(e) { changeQty(p.id,  1, e); });
 
     item.addEventListener('click', function() {
       toggleProduct(p.id);
@@ -700,11 +744,34 @@ function renderProductList() {
 }
 
 function toggleProduct(id) {
-  checkedProducts[id] = !checkedProducts[id];
+  checkedProducts[id] = (checkedProducts[id] || 0) > 0 ? 0 : 1;
   saveChecked();
 
   var item = document.querySelector('.product-item[data-id="' + id + '"]');
-  if (item) item.className = 'product-item' + (checkedProducts[id] ? ' checked' : '');
+  if (item) {
+    var isChecked = checkedProducts[id] > 0;
+    item.className = 'product-item' + (isChecked ? ' checked' : '');
+    var qtyNum = item.querySelector('.qty-num');
+    if (qtyNum) qtyNum.textContent = isChecked ? checkedProducts[id] : 1;
+  }
+
+  updateSummary();
+}
+
+function changeQty(id, delta, e) {
+  e.stopPropagation();
+  var cur  = (checkedProducts[id] || 0) > 0 ? checkedProducts[id] : 1;
+  var next = cur + delta;
+  checkedProducts[id] = next <= 0 ? 0 : next;
+  saveChecked();
+
+  var item = document.querySelector('.product-item[data-id="' + id + '"]');
+  if (item) {
+    var isChecked = checkedProducts[id] > 0;
+    item.className = 'product-item' + (isChecked ? ' checked' : '');
+    var qtyNum = item.querySelector('.qty-num');
+    if (qtyNum) qtyNum.textContent = isChecked ? checkedProducts[id] : 1;
+  }
 
   updateSummary();
 }
@@ -714,6 +781,8 @@ function clearProducts() {
   saveChecked();
   document.querySelectorAll('.product-item').forEach(function(el) {
     el.className = 'product-item';
+    var qtyNum = el.querySelector('.qty-num');
+    if (qtyNum) qtyNum.textContent = '1';
   });
   updateSummary();
 }
@@ -798,9 +867,10 @@ function updateSummary() {
   var total = 0;
 
   products.forEach(function(p) {
-    if (checkedProducts[p.id]) {
-      count++;
-      total += p.price || 0;
+    var qty = checkedProducts[p.id] || 0;
+    if (qty > 0) {
+      count += qty;
+      total += (p.price || 0) * qty;
     }
   });
 
