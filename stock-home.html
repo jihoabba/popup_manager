@@ -18,6 +18,7 @@
             --border: #2a2a2a;
             --hongdae: #4ade80;
             --busan: #fb923c;
+            --third: #60a5fa;
             --admin: #a78bfa;
         }
 
@@ -159,6 +160,12 @@
         .card-busan .dot { background: var(--busan); }
         .card-busan .arrow { color: var(--busan); }
 
+        /* Third */
+        .card-third::before { background: linear-gradient(135deg, rgba(96,165,250,0.08), transparent); }
+        .card-third:hover { border-color: rgba(96,165,250,0.3); box-shadow: 0 0 0 1px rgba(96,165,250,0.3), inset 0 0 20px rgba(96,165,250,0.04); }
+        .card-third .dot { background: var(--third); }
+        .card-third .arrow { color: var(--third); }
+
         /* 어드민 */
         .card-admin::before { background: linear-gradient(135deg, rgba(167,139,250,0.08), transparent); }
         .card-admin:hover { border-color: rgba(167,139,250,0.3); box-shadow: 0 0 0 1px rgba(167,139,250,0.3), inset 0 0 20px rgba(167,139,250,0.04); }
@@ -269,6 +276,8 @@
         .fade-up:nth-child(5) { animation-delay: 0.25s; }
         .fade-up:nth-child(6) { animation-delay: 0.3s; }
         .fade-up:nth-child(7) { animation-delay: 0.35s; }
+        .fade-up:nth-child(8) { animation-delay: 0.4s; }
+        .fade-up:nth-child(9) { animation-delay: 0.45s; }
 
         @media (max-width: 480px) {
             .container { padding: 40px 20px 32px; }
@@ -329,6 +338,16 @@
             </div>
             <span class="arrow">→</span>
         </a>
+        <a href="stock-front-third.html" class="card card-third fade-up">
+            <div class="card-left">
+                <div class="dot pulse" style="background:var(--third)"></div>
+                <div class="card-info">
+                    <div class="card-name">Third 재고 현황</div>
+                    <div class="card-desc">THIRD STORE</div>
+                </div>
+            </div>
+            <span class="arrow">→</span>
+        </a>
     </div>
 
     <!-- 스태프용 -->
@@ -354,6 +373,16 @@
             </div>
             <span class="arrow">→</span>
         </a>
+        <a href="stock-back-third.html" class="card card-third fade-up">
+            <div class="card-left">
+                <div class="dot" style="background:var(--third); opacity:0.6"></div>
+                <div class="card-info">
+                    <div class="card-name">Third 재고 관리</div>
+                    <div class="card-desc">STOCK MANAGER · THIRD</div>
+                </div>
+            </div>
+            <span class="arrow">→</span>
+        </a>
     </div>
 
     <!-- 어드민 -->
@@ -364,7 +393,7 @@
                 <div class="dot" style="background:var(--admin)"></div>
                 <div class="card-info">
                     <div class="card-name">통합 어드민</div>
-                    <div class="card-desc">ADMIN · 홍대 + 부산 관리</div>
+                    <div class="card-desc">ADMIN · 홍대 + 부산 + Third 관리</div>
                 </div>
             </div>
             <span class="arrow">→</span>
