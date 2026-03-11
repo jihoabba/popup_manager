@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>팝업스토어 RPG</title>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      width: 100%; height: 100%;
+      overflow: hidden;
+      background: #060809;
+      touch-action: none;
+    }
+    #game-wrap {
+      position: fixed; inset: 0;
+      display: flex; align-items: center; justify-content: center;
+      background: radial-gradient(circle at center, #1a2530 0%, #060809 100%);
+    }
+    #game-container {
+      position: relative;
+      width: min(100vw, 56.25vh);
+      height: min(177.78vw, 100vh);
+    }
+  </style>
+  <script src="https://cdn.jsdelivr.net/npm/phaser@3.70.0/dist/phaser.min.js"></script>
+</head>
+<body>
+<div id="game-wrap"><div id="game-container"></div></div>
+<script>
+const W = 320, H = 568;
+const T = 16;
+const MAP_W = 20, MAP_H = 36;
+
+const C = {
+  floor1: 0xd4c9b8, floor2: 0xcabfae,
+  wall: 0x3d4f5c, wallDark: 0x2a3540,
+  accent: 0xffcf57, accentDark: 0xc9961c,
+  zoneProduct: 0x7dc08e, zonePhoto: 0xc78bd9, zoneMedia: 0x6dc6db,
+  playerBody: 0x4a7fc1, playerHair: 0x2d1f1f, playerSkin: 0xf5c9a0,
+  npcA: 0xe06b6b, npcB: 0x6be0b8, npcC: 0xe0c46b,
+  uiBg: 0x101820, uiBorder: 0x3a5060,
+  stampEmpty: 0x2a3540, stampDone: 0xffcf57,
+};
+
+class GameScene extends Phaser.Scene {
+  constructor() { super('GameScene'); }
+
+  create() {
+    this.cameras.main.setBackgroundColor('#0d1520');
+    this.physics.world.setBounds(0, 0, MAP_W * T, MAP_H * T);
+
+    this.stamps = { product: false, photo: false, media: false };
+    this.moveInput = { up: false, down: false, left: false, right: false };
+    this.interactPressed = false;
+    this.dialogOpen = false;
+    this.currentZone = null;
+    this.lastDir = 'down';
+    this.playerAnimTimer = 0;
+    this.playerFrame = 1;
+
+    this._buildTextures();
+    this._buildMap();
+    this._buildObjects();
+    this._buildNPCs();
+    this._buildPlayer();
+    this._buildUI();
+    this._buildControls();
+
+    this.physics.add.collider(this.player, this.walls);
+    this.physics.add.collider(this.player, this.solidObjects);
+    this.npcs.forEach(n => this.physics.add.collider(this.player, n));
+
+    this.cameras.main.startFollow(this.player, true, 0.12, 0.12);
+    this.cameras.main.setBounds(0, 0, MAP_W * T, MAP_H * T);
+    this.cameras.main.setZoom(2);
+
+    this.time.delayedCall(300, () => this._showIntro());
+  }
+
+  _buildTextures() {
+    const g = this.make.graphics({ add: false });
+
+    // Shelf
+    g.fillStyle(0x8b6845).fillRect(0,0,T*3,T);
+    g.fillStyle(0xc4a06a).fillRect(0,0,T*3,4);
+    g.fillStyle(0x6b4f30).fillRect(0,T-2,T*3,2);
+    [[0xea4040,0],[0x40c4ea,1],[0xeac040,2],[0x9040ea,3],[0x40ea80,4]].forEach(([cx,i])=>{
+      g.fillStyle(cx).fillRect(3+i*9,5,7,9);
+      g.fillStyle(0xffffff,0.3).fillRect(4+i*9,6,2,3);
+    });
+    g.generateTexture('shelf',T*3,T); g.clear();
+
+    // Cashier
+    g.fillStyle(0x5a6d50).fillRect(0,0,T*5,T);
+    g.fillStyle(0x8aaa70).fillRect(0,0,T*5,5);
+    g.fillStyle(0x3a4d30).fillRect(0,T-2,T*5,2);
+    g.fillStyle(0x1a1a1a).fillRect(28,3,16,10);
+    g.fillStyle(0x40c0ff,0.8).fillRect(29,4,14,7);
+    g.generateTexture('cashier',T*5,T); g.clear();
+
+    // Photo booth
+    g.fillStyle(0x6a4a8a).fillRect(0,0,T*3,T*2);
+    g.fillStyle(0x9a6aba).fillRect(2,2,T*3-4,T*2-4);
+    g.fillStyle(0x2a1a3a).fillRect(8,8,T*3-16,T*2-16);
+    g.fillStyle(0xffe4ff,0.7).fillRect(10,10,T*3-20,T*2-20);
+    g.fillStyle(0xff80c0).fillRect(16,T+4,16,6);
+    g.generateTexture('booth',T*3,T*2); g.clear();
+
+    // Media screen
+    g.fillStyle(0x1a2530).fillRect(0,0,T*6,T);
+    g.fillStyle(0x0d1520).fillRect(2,2,T*6-4,T-4);
+    g.fillStyle(0x40d0ff).fillRect(4,4,T*6-8,T-8);
+    g.fillStyle(0x80e8ff,0.5).fillRect(6,5,20,4);
+    for(let y=4;y<T-4;y+=2) g.fillStyle(0x000000,0.2).fillRect(4,y,T*6-8,1);
+    g.generateTexture('media',T*6,T); g.clear();
+
+    // Decor (plant)
+    g.fillStyle(0x2a3030).fillRect(4,12,8,4);
+    g.fillStyle(0x228b22).fillRect(2,4,12,12);
+    g.fillStyle(0x32bb32).fillRect(4,2,8,8);
+    g.fillStyle(0x1a6b1a).fillRect(0,6,4,6);
+    g.fillStyle(0x1a6b1a).fillRect(12,6,4,6);
+    g.generateTexture('decor',T,T); g.clear();
+
+    // Sign banner
+    g.fillStyle(0xffcf57).fillRect(0,0,T*4,T);
+    g.fillStyle(0xc9961c).fillRect(0,T-2,T*4,2);
+    g.fillStyle(0x1a1000).fillRect(4,3,T*4-8,T-7);
+    g.generateTexture('sign',T*4,T); g.clear();
+
+    // NPC textures
+    [[0xe06b6b,0xf5c9a0,'npc_a'],[0x6be0b8,0xf5c9a0,'npc_b'],[0xe0c46b,0x8b5e3c,'npc_c']].forEach(([body,skin,key])=>{
+      g.fillStyle(0x000000,0.2).fillEllipse(8,19,10,4);
+      g.fillStyle(body).fillRect(4,8,8,8);
+      g.fillStyle(skin).fillRect(5,3,6,6);
+      g.fillStyle(0x2a1a1a).fillRect(5,2,6,3);
+      g.fillStyle(0x1a1a1a).fillRect(6,6,2,1).fillRect(9,6,2,1);
+      g.generateTexture(key,16,20); g.clear();
+    });
+
+    // Player - 4 dirs x 3 frames
+    ['down','up','left','right'].forEach(dir=>{
+      [0,1,2].forEach(f=>{
+        const bob = f===1?-1:0;
+        const lo = f===0?0:f===1?-1:1;
+        g.fillStyle(0x000000,0.2).fillEllipse(8,19,10,4);
+        g.fillStyle(0x2a3568).fillRect(5,13+Math.abs(lo),3,5).fillRect(9,13-Math.abs(lo),3,5);
+        g.fillStyle(0x1a1a2a).fillRect(4,17+Math.abs(lo),4,2).fillRect(8,17-Math.abs(lo),4,2);
+        g.fillStyle(C.playerBody).fillRect(4,7+bob,8,7);
+        g.fillStyle(0xffffff,0.5).fillRect(6,7+bob,4,2);
+        if(dir==='left'){
+          g.fillStyle(C.playerBody).fillRect(1,8+bob,3,5);
+          g.fillStyle(C.playerSkin).fillRect(0,11+bob,4,3);
+        } else if(dir==='right'){
+          g.fillStyle(C.playerBody).fillRect(12,8+bob,3,5);
+          g.fillStyle(C.playerSkin).fillRect(12,11+bob,4,3);
+        } else {
+          g.fillStyle(C.playerBody).fillRect(1,8+bob,3,5).fillRect(12,8+bob,3,5);
+          g.fillStyle(C.playerSkin).fillRect(1,12+bob,3,3).fillRect(12,12+bob,3,3);
+        }
+        g.fillStyle(C.playerSkin).fillRect(4,2+bob,8,7);
+        g.fillStyle(C.playerHair).fillRect(4,1+bob,8,4);
+        if(dir==='down'){
+          g.fillStyle(0x3a2c22).fillRect(6,6+bob,1,1).fillRect(9,6+bob,1,1);
+          g.fillStyle(0xff9090,0.6).fillRect(5,7+bob,2,1).fillRect(9,7+bob,2,1);
+        } else if(dir==='up'){
+          g.fillStyle(C.playerHair).fillRect(4,2+bob,8,6);
+        } else if(dir==='left'){
+          g.fillStyle(0x3a2c22).fillRect(5,6+bob,1,1);
+          g.fillStyle(C.playerHair).fillRect(10,1+bob,2,5);
+        } else {
+          g.fillStyle(0x3a2c22).fillRect(10,6+bob,1,1);
+          g.fillStyle(C.playerHair).fillRect(4,1+bob,2,5);
+        }
+        g.generateTexture(`pl_${dir}_${f}`,16,20); g.clear();
+      });
+    });
+
+    // Sparkle particle
+    g.fillStyle(0xffffff).fillRect(2,0,2,6).fillRect(0,2,6,2);
+    g.generateTexture('sparkle',6,6); g.clear();
+
+    g.destroy();
+  }
+
+  _buildMap() {
+    this.walls = this.physics.add.staticGroup();
+    const gfx = this.add.graphics().setDepth(0);
+
+    for(let y=0;y<MAP_H;y++){
+      for(let x=0;x<MAP_W;x++){
+        if(x===0||y===0||x===MAP_W-1||y===MAP_H-1){
+          gfx.fillStyle(C.wallDark).fillRect(x*T,y*T,T,T);
+        } else {
+          gfx.fillStyle((x+y)%2===0?C.floor1:C.floor2).fillRect(x*T,y*T,T,T);
+        }
+      }
+    }
+
+    // Zone rugs
+    [[5,9,C.zoneProduct],[15,9,C.zonePhoto],[25,8,C.zoneMedia]].forEach(([zy,zh,zc])=>{
+      gfx.fillStyle(zc,0.16).fillRect(T,zy*T,(MAP_W-2)*T,zh*T);
+      gfx.lineStyle(1,zc,0.55).strokeRect(T+0.5,zy*T+0.5,(MAP_W-2)*T-1,zh*T-1);
+    });
+
+    // Aisle
+    gfx.fillStyle(0xe8e0d0,0.35).fillRect(8*T,T,4*T,(MAP_H-2)*T);
+
+    // Entry floor mark
+    gfx.fillStyle(0xffcf57,0.25).fillRect(8*T,(MAP_H-3)*T,4*T,T);
+    gfx.lineStyle(1,0xffcf57,0.7).strokeRect(8*T,(MAP_H-3)*T,4*T,T);
+
+    // Wall physics
+    const addW=(x,y,w,h)=>{
+      const r=this.add.rectangle(x+w/2,y+h/2,w,h).setVisible(false);
+      this.physics.add.existing(r,true); this.walls.add(r);
+    };
+    addW(0,0,MAP_W*T,T);
+    addW(0,(MAP_H-1)*T,MAP_W*T,T);
+    addW(0,0,T,MAP_H*T);
+    addW((MAP_W-1)*T,0,T,MAP_H*T);
+
+    // Zone labels
+    const ls={fontFamily:'monospace',fontSize:'9px',color:'#ffffff66'};
+    this.add.text(T+4,5*T+3,'● PRODUCT ZONE',ls).setDepth(1);
+    this.add.text(T+4,15*T+3,'● PHOTO ZONE',ls).setDepth(1);
+    this.add.text(T+4,25*T+3,'● MEDIA ZONE',ls).setDepth(1);
+  }
+
+  _buildObjects() {
+    this.solidObjects = this.physics.add.staticGroup();
+    this.interactives = [];
+
+    const add=(tex,tx,ty,tw,th,solid,interact)=>{
+      const px=tx*T,py=ty*T,pw=tw*T,ph=th*T;
+      this.add.image(px+pw/2,py+ph/2,tex).setDisplaySize(pw,ph).setDepth(2);
+      if(solid){
+        const r=this.add.rectangle(px+pw/2,py+ph*0.75,pw,ph*0.4).setVisible(false);
+        this.physics.add.existing(r,true); this.solidObjects.add(r);
+      }
+      if(interact) this.interactives.push({x:px+pw/2,y:py+ph/2,radius:T*2.5,...interact});
+    };
+
+    // PRODUCT ZONE
+    add('shelf',1,6,3,1,true,{title:'상품 선반 A',body:'한정판 굿즈 진열 중! 카테고리별로\n정리되어 있어요. 품절 전에 서두르세요 🛍️'});
+    add('shelf',1,8,3,1,true,{title:'상품 선반 B',body:'이번 시즌 컬래버레이션 상품!\n포토카드 세트 랜덤 배정 · 1인 3개 한정 📷'});
+    add('shelf',1,10,3,1,true,{title:'상품 선반 C',body:'스페셜 에디션 패키지.\n특전 스티커 포함! 마지막 재고 ✨'});
+    add('shelf',14,6,3,1,true,{title:'상품 선반 D',body:'아크릴 키링 & 뱃지 코너.\n디자인 종류 12가지! 🎨'});
+    add('shelf',14,8,3,1,true,{title:'상품 선반 E',body:'포스터 & 브로마이드 코너.\n튜브 포장 후 수령대 픽업 가능!'});
+    add('shelf',14,10,3,1,true,{title:'상품 선반 F',body:'MD 굿즈 마지막 재고!\n오늘 추가 입고 예정 없음 ⚠️'});
+    add('cashier',7,12,5,1,true,{title:'💳 계산대',body:'카드 & 모바일 페이만 가능해요.\n현금 결제 불가! QR 픽업 코드 준비하세요.\n\n[스탬프 1/3 획득!] ✅',stampId:'product'});
+
+    // PHOTO ZONE
+    add('booth',3,16,3,2,true,{title:'📸 포토부스 A',body:'아이돌 테마 필터 적용 부스!\n마커 위에 서서 셔터 버튼을 누르세요.\n인화 코드는 이메일로 발송돼요.'});
+    add('booth',12,16,3,2,true,{title:'📸 포토부스 B',body:'그룹 포토 촬영 가능! 최대 4인 동시 입장.\n필터: 빈티지 / 글리터 / 야경 선택하세요.\n\n[스탬프 2/3 획득!] ✅',stampId:'photo'});
+    add('decor',1,15,1,1,false,null); add('decor',18,15,1,1,false,null);
+    add('decor',1,21,1,1,false,null); add('decor',18,21,1,1,false,null);
+
+    // MEDIA ZONE
+    add('media',4,26,6,1,true,{title:'🎬 미디어 월 A',body:'싱크 월 스크린 예고편 상영 중!\n2분마다 다음 클립으로 전환돼요.\n사이드 프롭 체험 시 숨겨진 티저 해금!'});
+    add('media',4,28,6,1,true,{title:'🎬 미디어 월 B',body:'비하인드 영상 & 메이킹 필름 상영 중.\n오후 5시에 스페셜 라이브 예정!\n\n[스탬프 3/3 획득!] ✅',stampId:'media'});
+    add('decor',2,25,1,1,false,null); add('decor',17,25,1,1,false,null);
+    add('decor',2,31,1,1,false,null); add('decor',17,31,1,1,false,null);
+
+    // Signs
+    const ss={fontFamily:'monospace',fontSize:'7px',color:'#ffcf57',align:'center'};
+    [[8,5,'SHOP'],[8,15,'PHOTO'],[8,25,'MEDIA']].forEach(([tx,ty,lbl])=>{
+      this.add.image(tx*T+T*2,ty*T+T*0.5,'sign').setDisplaySize(T*4,T).setDepth(3);
+      this.add.text(tx*T+T*2,ty*T+T*0.5,lbl,ss).setOrigin(0.5).setDepth(4);
+    });
+  }
+
+  _buildNPCs() {
+    this.npcs = [];
+    [
+      {key:'npc_a',tx:6,ty:7,title:'스태프 민지',body:'어서오세요! 팝업스토어에 오신 걸 환영해요 🎉\n위에서부터 상품존 → 포토존 → 미디어존\n순서로 둘러보시면 효율적이에요!\n\n각 존에서 스탬프 1개씩 모아보세요 ⭐'},
+      {key:'npc_b',tx:5,ty:17,title:'스태프 지수',body:'포토부스 사용법 안내해드려요 📸\n1. 마커 위에 서주세요\n2. 카운트다운 후 A 버튼!\n3. QR코드로 사진 수령\n\n재촬영은 1회 무료랍니다!'},
+      {key:'npc_c',tx:15,ty:27,title:'스태프 하은',body:'미디어존에 오신 걸 환영해요 🎬\n현재 신보 MV 티저 상영 중!\n오른쪽 소품을 체험하면\n숨겨진 비하인드 클립이 해금돼요~'},
+    ].forEach(nd=>{
+      const npc=this.physics.add.sprite(nd.tx*T+T/2,nd.ty*T+T/2,nd.key).setDepth(5).setImmovable(true);
+      npc.body.setSize(10,10);
+      // Floating ! above NPC
+      const excl=this.add.text(nd.tx*T+T/2,nd.ty*T-6,'!',{fontFamily:'monospace',fontSize:'14px',color:'#ffcf57',stroke:'#2b2206',strokeThickness:3}).setOrigin(0.5).setDepth(6);
+      this.tweens.add({targets:excl,y:nd.ty*T-10,duration:600,yoyo:true,repeat:-1,ease:'Sine.easeInOut'});
+      this.interactives.push({x:nd.tx*T+T/2,y:nd.ty*T+T/2,radius:T*2.2,title:nd.title,body:nd.body,isNPC:true});
+      this.npcs.push(npc);
+    });
+  }
+
+  _buildPlayer() {
+    this.player=this.physics.add.sprite(10*T,(MAP_H-4)*T,'pl_down_1').setDepth(5);
+    this.player.setSize(10,10).setOffset(3,10).setCollideWorldBounds(true);
+    this.stampFx=this.add.particles(0,0,'sparkle',{
+      speed:{min:30,max:80},scale:{start:1.2,end:0},
+      lifespan:700,quantity:12,emitting:false,tint:[0xffcf57,0xff80c0,0x40d0ff]
+    }).setDepth(20);
+  }
+
+  _buildUI() {
+    const D=200;
+    // Top bar
+    this.add.rectangle(W/2,14,W,28,C.uiBg,0.93).setScrollFactor(0).setDepth(D).setStrokeStyle(1,C.uiBorder);
+    this.add.text(8,6,'🏪 팝업스토어 RPG',{fontFamily:'monospace',fontSize:'8px',color:'#ffcf57'}).setScrollFactor(0).setDepth(D+1);
+
+    // Stamp slots
+    this.stampIcons={};
+    [{id:'product',label:'SHOP',x:W-102},{id:'photo',label:'PHOTO',x:W-70},{id:'media',label:'MEDIA',x:W-38}].forEach(s=>{
+      const bg=this.add.rectangle(s.x+10,14,28,18,C.stampEmpty,0.8).setScrollFactor(0).setDepth(D).setStrokeStyle(1,0x4a6070);
+      const lbl=this.add.text(s.x+10,10,s.label,{fontFamily:'monospace',fontSize:'6px',color:'#8ab0c0'}).setOrigin(0.5).setScrollFactor(0).setDepth(D+1);
+      const mark=this.add.text(s.x+10,18,'○',{fontFamily:'monospace',fontSize:'10px',color:'#4a6070'}).setOrigin(0.5).setScrollFactor(0).setDepth(D+1);
+      this.stampIcons[s.id]={bg,lbl,mark};
+    });
+
+    // Zone banner
+    this.zoneBannerText=this.add.text(W/2,H*0.25,'',{fontFamily:'monospace',fontSize:'10px',color:'#ffffff',backgroundColor:'#000000cc',padding:{x:10,y:5}})
+      .setOrigin(0.5).setScrollFactor(0).setDepth(D+10).setAlpha(0);
+
+    // Dialog
+    const dh=140;
+    this.dlgBg=this.add.rectangle(W/2,H-dh/2,W-8,dh,C.uiBg,0.96).setScrollFactor(0).setDepth(300).setVisible(false).setStrokeStyle(2,C.uiBorder);
+    this.dlgTitle=this.add.text(12,H-dh+8,'',{fontFamily:'monospace',fontSize:'10px',color:'#ffcf57'}).setScrollFactor(0).setDepth(301).setVisible(false);
+    this.dlgBody=this.add.text(12,H-dh+24,'',{fontFamily:'monospace',fontSize:'9px',color:'#e8f4f0',wordWrap:{width:W-28},lineSpacing:3}).setScrollFactor(0).setDepth(301).setVisible(false);
+    this.dlgHint=this.add.text(W/2,H-10,'[ A / SPACE 로 닫기 ]',{fontFamily:'monospace',fontSize:'8px',color:'#5a8090'}).setOrigin(0.5).setScrollFactor(0).setDepth(301).setVisible(false);
+
+    // Minimap
+    this._buildMinimap();
+  }
+
+  _buildMinimap() {
+    const mx=W-50,my=36,mw=42,mh=62;
+    const sc=mw/(MAP_W*T);
+    this.add.rectangle(mx+mw/2,my+mh/2,mw+4,mh+4,0x0a1218,0.88).setScrollFactor(0).setDepth(150).setStrokeStyle(1,0x3a5060);
+    const mg=this.add.graphics().setScrollFactor(0).setDepth(151);
+    [[5,9,C.zoneProduct],[15,9,C.zonePhoto],[25,8,C.zoneMedia]].forEach(([zy,zh,zc])=>{
+      mg.fillStyle(zc,0.45).fillRect(mx+T*sc,my+zy*T*sc,(MAP_W-2)*T*sc,zh*T*sc);
+    });
+    mg.fillStyle(C.wall,0.7).fillRect(mx,my,mw,2).fillRect(mx,my+mh-2,mw,2).fillRect(mx,my,2,mh).fillRect(mx+mw-2,my,2,mh);
+    this._mmX=mx; this._mmY=my; this._mmSc=sc;
+    this.mmDot=this.add.circle(mx,my,3,0xffcf57).setScrollFactor(0).setDepth(152);
+  }
+
+  _buildControls() {
+    const cx=70,cy=H-80,r=28;
+    const mkBtn=(x,y,rad,lbl,col)=>{
+      const c=this.add.circle(x,y,rad,col||0x1a2a30,0.82).setScrollFactor(0).setDepth(250).setInteractive().setStrokeStyle(1.5,0x4a7080,0.8);
+      this.add.text(x,y,lbl,{fontFamily:'monospace',fontSize:'15px',color:'#c8dde8'}).setOrigin(0.5).setScrollFactor(0).setDepth(251);
+      return c;
+    };
+    const bu=mkBtn(cx,cy-r,17,'▲'),bd=mkBtn(cx,cy+r,17,'▼'),bl=mkBtn(cx-r,cy,17,'◀'),br=mkBtn(cx+r,cy,17,'▶');
+    const ba=mkBtn(W-56,cy,24,'A',0x1a3050);
+    const bind=(btn,dir)=>{
+      btn.on('pointerdown',()=>this.moveInput[dir]=true);
+      btn.on('pointerup',()=>this.moveInput[dir]=false);
+      btn.on('pointerout',()=>this.moveInput[dir]=false);
+    };
+    bind(bu,'up'); bind(bd,'down'); bind(bl,'left'); bind(br,'right');
+    ba.on('pointerdown',()=>this.interactPressed=true);
+    this.keys=this.input.keyboard.addKeys({up:'UP',down:'DOWN',left:'LEFT',right:'RIGHT',a:'SPACE'});
+  }
+
+  _showIntro() {
+    this._openDialog('🎉 팝업스토어에 오신 걸 환영해요!',
+      '이 팝업스토어를 탐험해보세요!\n\n📌 목표: 3개 존에서 스탬프를 모으세요\n  ① 상품존 계산대\n  ② 포토존 포토부스 B\n  ③ 미디어존 미디어 월 B\n\n💬 스태프(!) NPC와 대화하면 힌트를 줘요!');
+  }
+
+  _openDialog(title,body) {
+    this.dialogOpen=true;
+    this.dlgBg.setVisible(true);
+    this.dlgTitle.setText(title).setVisible(true);
+    this.dlgBody.setText(body).setVisible(true);
+    this.dlgHint.setVisible(true);
+    this.player?.setVelocity(0,0);
+  }
+
+  _closeDialog() {
+    this.dialogOpen=false;
+    this.dlgBg.setVisible(false);
+    this.dlgTitle.setVisible(false);
+    this.dlgBody.setVisible(false);
+    this.dlgHint.setVisible(false);
+  }
+
+  _collectStamp(id) {
+    if(this.stamps[id]) return;
+    this.stamps[id]=true;
+    const ic=this.stampIcons[id];
+    ic.bg.setFillStyle(C.accentDark,0.9).setStrokeStyle(1,C.accent);
+    ic.mark.setText('★').setColor('#ffcf57');
+    ic.lbl.setColor('#ffcf57');
+    this.stampFx.setPosition(this.player.x,this.player.y);
+    this.stampFx.explode(14);
+    if(this.stamps.product&&this.stamps.photo&&this.stamps.media){
+      this.time.delayedCall(900,()=>{
+        this._openDialog('🏆 스탬프 랠리 완성!','3개 스탬프를 모두 모았어요!\n\n출구에서 스태프에게 스탬프 카드를\n보여주시면 특별 기념품을 드립니다 🎁\n\n팝업스토어 이용해 주셔서\n감사합니다! ✨');
+      });
+    }
+  }
+
+  _checkZone(py) {
+    const ty=Math.floor(py/T);
+    let zone=null;
+    if(ty>=5&&ty<14) zone='product';
+    else if(ty>=15&&ty<24) zone='photo';
+    else if(ty>=25&&ty<33) zone='media';
+    if(zone!==this.currentZone){
+      this.currentZone=zone;
+      const banners={product:'🛍️ PRODUCT ZONE',photo:'📸 PHOTO ZONE',media:'🎬 MEDIA ZONE'};
+      const colors={product:'#7dc08e',photo:'#c78bd9',media:'#6dc6db'};
+      if(zone){
+        this.zoneBannerText.setText(banners[zone]).setColor(colors[zone]).setAlpha(1).setY(H*0.25);
+        this.tweens.killTweensOf(this.zoneBannerText);
+        this.tweens.add({targets:this.zoneBannerText,alpha:0,y:H*0.22,duration:2000,delay:1500,ease:'Sine.easeIn'});
+      }
+    }
+  }
+
+  update(time,delta) {
+    const up=this.keys.up.isDown||this.moveInput.up;
+    const down=this.keys.down.isDown||this.moveInput.down;
+    const left=this.keys.left.isDown||this.moveInput.left;
+    const right=this.keys.right.isDown||this.moveInput.right;
+    const interact=Phaser.Input.Keyboard.JustDown(this.keys.a)||this.interactPressed;
+    this.interactPressed=false;
+
+    if(interact&&this.dialogOpen){ this._closeDialog(); return; }
+
+    if(!this.dialogOpen){
+      let vx=0,vy=0;
+      if(up) vy-=90; if(down) vy+=90;
+      if(left) vx-=90; if(right) vx+=90;
+      if(vx!==0&&vy!==0){ vx*=0.707; vy*=0.707; }
+      this.player.setVelocity(vx,vy);
+
+      if(vx!==0||vy!==0){
+        if(Math.abs(vx)>Math.abs(vy)) this.lastDir=vx>0?'right':'left';
+        else this.lastDir=vy>0?'down':'up';
+        this.playerAnimTimer+=delta;
+        if(this.playerAnimTimer>140){ this.playerAnimTimer=0; this.playerFrame=(this.playerFrame+1)%3; }
+      } else {
+        this.playerFrame=1; this.playerAnimTimer=0;
+      }
+      this.player.setTexture(`pl_${this.lastDir}_${this.playerFrame}`);
+
+      this._checkZone(this.player.y);
+
+      // Minimap dot
+      this.mmDot.setPosition(this._mmX+this.player.x*this._mmSc, this._mmY+this.player.y*this._mmSc);
+
+      // Nearest interactive
+      let nearest=null,minD=Infinity;
+      this.interactives.forEach(it=>{
+        const d=Phaser.Math.Distance.Between(this.player.x,this.player.y,it.x,it.y);
+        if(d<it.radius&&d<minD){ minD=d; nearest=it; }
+      });
+
+      if(nearest&&interact){
+        if(nearest.stampId) this._collectStamp(nearest.stampId);
+        this._openDialog(nearest.title,nearest.body||'');
+      }
+    } else {
+      this.player.setVelocity(0,0);
+    }
+  }
+}
+
+new Phaser.Game({
+  type: Phaser.AUTO,
+  parent: 'game-container',
+  width: W, height: H,
+  pixelArt: true,
+  backgroundColor: '#0d1520',
+  physics: { default:'arcade', arcade:{ gravity:{ y:0 }, debug:false } },
+  scene: [GameScene],
+  scale: { mode: Phaser.Scale.FIT, autoCenter: Phaser.Scale.CENTER_BOTH, width: W, height: H }
+});
+</script>
+</body>
+</html>
